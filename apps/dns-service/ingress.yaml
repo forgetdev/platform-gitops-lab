@@ -5,10 +5,9 @@ metadata:
   namespace: default
 spec:
   rules:
-    - host: dns.totalip.local
-      http:
+    - http:
         paths:
-          - path: /
+          - path: /dns
             pathType: Prefix
             backend:
               service:
