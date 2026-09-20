@@ -18,17 +18,8 @@ spec:
         app: dns-service
     spec:
       serviceAccountName: dns-service-sa
-      containers:  
-  selector:
-    matchLabels:
-      app: dns-service
-  template:
-    metadata:
-      labels:
-        app: dns-service
-    spec:
-      serviceAccountName: dns-service-sa
       containers:
+        # Container 1: Seu dnsd original (100% preservado com todas as suas flags)
         - name: dnsd
           image: dnsd:2.0
           imagePullPolicy: Never
@@ -50,6 +41,17 @@ spec:
           volumeMounts:
             - name: dns-storage
               mountPath: /data
+
+        # Container 2: O Sidecar que acabamos de compilar
+        - name: ingress-watcher
+          image: docker.io/library/ingress-watcher:1.0
+          imagePullPolicy: Never
+          env:
+            - name: DNS_API_URL
+              value: "http://127.0.0.1:8081"
+            - name: DNS_TARGET_IP
+              value: "10.9.0.1"
+
       volumes:
         - name: dns-storage
           hostPath:
