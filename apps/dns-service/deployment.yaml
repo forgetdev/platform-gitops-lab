@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dns-service
+  namespace: default
+  labels:
+    app: dns-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dns-service
+  template:
+    metadata:
+      labels:
+        app: dns-service
+    spec:
+      containers:
+        - name: dnsd
+          image: dnsd:latest
+          imagePullPolicy: IfNotPresent  
+          args:
+            - "-port"
+            - "53"
+            - "-http-port"
+            - "8081"
+            - "-zone-file"
+            - "/data/records.json"
+            - "-upstream"
+            - "1.1.1.1:53"
+          ports:
+            - name: dns-udp
+              containerPort: 53
+              protocol: UDP
+            - name: http-api
+              containerPort: 8081
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: dns-data-pvc
