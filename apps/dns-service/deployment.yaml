@@ -7,6 +7,18 @@ metadata:
     app: dns-service
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: dns-service
+  template:
+    metadata:
+      labels:
+        app: dns-service
+    spec:
+      serviceAccountName: dns-service-sa
+      containers:  
   selector:
     matchLabels:
       app: dns-service
