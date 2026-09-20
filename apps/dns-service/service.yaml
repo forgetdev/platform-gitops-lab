@@ -3,8 +3,10 @@ kind: Service
 metadata:
   name: dns-service
   namespace: default
+  labels:
+    app: dns-service
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: dns-service
   ports:
