@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-service
+  namespace: echo-service
+  labels:
+    app: echo-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: echo-service
+  template:
+    metadata:
+      labels:
+        app: echo-service
+    spec:
+      containers:
+        - name: echo
+          image: hashicorp/http-echo:latest
+          args:
+            - "-text=Olá da minha plataforma GitOps rodando no k3s!"
+            - "-listen=:5678"
+          ports:
+            - containerPort: 5678
+          resources:
+            limits:
+              memory: "64Mi"
+              cpu: "50m"
+            requests:
+              memory: "32Mi"
+              cpu: "25m"
