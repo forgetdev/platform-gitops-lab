@@ -6,15 +6,12 @@ metadata:
   labels:
     app: dns-service
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: dns-service
   ports:
-    - name: dns-udp
-      port: 53
-      targetPort: 53
-      protocol: UDP
     - name: http-api
       port: 8081
       targetPort: 8081
+      nodePort: 30081
       protocol: TCP

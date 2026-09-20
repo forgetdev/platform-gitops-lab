@@ -29,6 +29,7 @@ spec:
           ports:
             - name: dns-udp
               containerPort: 53
+              hostPort: 53
               protocol: UDP
             - name: http-api
               containerPort: 8081
