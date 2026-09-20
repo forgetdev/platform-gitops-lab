@@ -15,9 +15,10 @@ spec:
       labels:
         app: dns-service
     spec:
+      serviceAccountName: dns-service-sa
       containers:
         - name: dnsd
-          image: dnsd:latest
+          image: dnsd:2.0
           imagePullPolicy: Never
           args:
             - "-port"
