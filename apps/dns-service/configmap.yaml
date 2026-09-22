@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dns-watcher-config
+  namespace: default
+  labels:
+    app: dns-service
+data:
+  DNS_TARGET_IP: "10.9.0.1"
+  DNS_API_URL: "http://127.0.0.1:8081"

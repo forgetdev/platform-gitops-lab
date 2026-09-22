@@ -18,8 +18,9 @@ spec:
         app: dns-service
     spec:
       serviceAccountName: dns-service-sa
+      terminationGracePeriodSeconds: 15
       containers:
-        # Container 1: Seu dnsd original (100% preservado com todas as suas flags)
+        # Container 1: Servidor DNS autoritativo e API REST
         - name: dnsd
           image: dnsd:2.0
           imagePullPolicy: Never
@@ -38,22 +39,54 @@ spec:
             - name: http-api
               containerPort: 8081
               protocol: TCP
+          resources:
+            requests:
+              cpu: 20m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          startupProbe:
+            httpGet:
+              path: /records
+              port: 8081
+            initialDelaySeconds: 2
+            periodSeconds: 2
+            failureThreshold: 10
+          readinessProbe:
+            httpGet:
+              path: /records
+              port: 8081
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /records
+              port: 8081
+            periodSeconds: 10
+            failureThreshold: 3
           volumeMounts:
             - name: dns-storage
               mountPath: /data
 
-        # Container 2: O Sidecar que acabamos de compilar
+        # Container 2: Sidecar Ingress Watcher
         - name: ingress-watcher
           image: docker.io/library/ingress-watcher:1.4
           imagePullPolicy: Never
-          env:
-            - name: DNS_API_URL
-              value: "http://127.0.0.1:8081"
-            - name: DNS_TARGET_IP
-              value: "10.9.0.1"
+          envFrom:
+            - configMapRef:
+                name: dns-watcher-config
+          resources:
+            requests:
+              cpu: 10m
+              memory: 24Mi
+            limits:
+              cpu: 50m
+              memory: 48Mi
+          securityContext:
+            allowPrivilegeEscalation: false
 
       volumes:
         - name: dns-storage
-          hostPath:
-            path: /home/opc/dns-data
-            type: DirectoryOrCreate
+          persistentVolumeClaim:
+            claimName: dns-data-pvc
